@@ -20,110 +20,105 @@ import numpy
 import pytesseract
 
 import usersettings as userset
+from classes.com    import Com
 from classes.window import Window
+from collections    import namedtuple
 
 class Inputs:
     """This class handles inputs."""
 
-    @staticmethod
-    def click(x :int, y :int, button :str ="left", fast :bool =False) -> None:
-        """Click at pixel xy."""
-        x += Window.x
-        y += Window.y
-        lParam = win32api.MAKELONG(x, y)
-        # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(Window.id, wcon.WM_MOUSEMOVE, 0, lParam)
-        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-               win32api.GetKeyState(wcon.VK_MENU) < 0):
-            time.sleep(0.005)
-        if button == "left":
-            win32gui.PostMessage(Window.id, wcon.WM_LBUTTONDOWN,
-                                 wcon.MK_LBUTTON, lParam)
-            win32gui.PostMessage(Window.id, wcon.WM_LBUTTONUP,
-                                 wcon.MK_LBUTTON, lParam)
-        else:
-            win32gui.PostMessage(Window.id, wcon.WM_RBUTTONDOWN,
-                                 wcon.MK_RBUTTON, lParam)
-            win32gui.PostMessage(Window.id, wcon.WM_RBUTTONUP,
-                                 wcon.MK_RBUTTON, lParam)
-        # Sleep lower than 0.1 might cause issues when clicking in succession
-        if fast:
-            time.sleep(userset.FAST_SLEEP)
-        else:
-            time.sleep(userset.MEDIUM_SLEEP)
+    Btn = namedtuple("Btn", ["btn", "down", "up"])
+
+    btns = {
+        "left": Btn(wcon.MK_LBUTTON, wcon.WM_LBUTTONDOWN, wcon.WM_LBUTTONUP), # left mouse button
+        "right": Btn(wcon.MK_RBUTTON, wcon.WM_RBUTTONDOWN, wcon.WM_RBUTTONUP), # right mouse button
+        "middle": Btn(wcon.MK_MBUTTON, wcon.WM_MBUTTONDOWN, wcon.WM_MBUTTONUP)  # middle mouse button
+    }
+
+    specialKeys = {
+        "leftShift": 0, # left shift
+        "rightShift": 1, # right shift
+        "leftControl": 2, # left control
+        "rightControl": 3  # right control
+    }
+
+    arrow = {
+        "left": 276, # left arrow
+        "right": 265, # right arrow
+        "up": 273, # up arrow
+        "down": 274  # down arrow
+    }
 
     @staticmethod
-    def click_drag(x :int, y :int, x2 :int, y2 :int) -> None:
+    def special(special: str = "leftShift") -> None:
+        """Simulate special button to be down"""
+        # UnityEngine.Input.GetKeyString
+        key = Inputs.specialKeys[special]
+        Com.special(key)
+
+    @staticmethod
+    def restore_special() -> None:
+        """Restore special button state"""
+        Com.restore_special()
+
+    @staticmethod
+    def click(x: int, y: int, button: str = "left") -> None:
         """Click at pixel xy."""
-        x += Window.x
-        y += Window.y
-        x2 += Window.x
-        y2 += Window.y
-        lParam = win32api.MAKELONG(x, y)
-        lParam2 = win32api.MAKELONG(x2, y2)
-        # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(Window.id, wcon.WM_MOUSEMOVE, 0, lParam)
-        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-               win32api.GetKeyState(wcon.VK_MENU) < 0):
-            time.sleep(0.005)
-        win32gui.PostMessage(Window.id, wcon.WM_LBUTTONDOWN,
-                             wcon.MK_LBUTTON, lParam)
-        time.sleep(userset.LONG_SLEEP * 2)
-        win32gui.PostMessage(Window.id, wcon.WM_MOUSEMOVE, 0, lParam2)
+        # No need for checking if special keys are pressed down.
+        # When game is out of focus they are not sent :)
+        button = Inputs.btns[button]
+        Com.set_cur_pos(x + Window.x, y + Window.y)
+        win32gui.SendMessage(Window.id, button.down, button.btn, 0)
+        win32gui.SendMessage(Window.id, button.up  , button.btn, 0)
         time.sleep(userset.SHORT_SLEEP)
-        win32gui.PostMessage(Window.id, wcon.WM_LBUTTONUP,
-                             wcon.MK_LBUTTON, lParam2)
-        time.sleep(userset.MEDIUM_SLEEP)
+        Com.restore_cur()
 
     @staticmethod
-    def ctrl_click(x :int, y :int) -> None:
+    def click_drag(x: int, y: int, x2: int, y2: int, button: str = "left") -> None:
+        """Simulate drag event from x, y to x2, y2"""
+        button = Inputs.btns[button]
+        Com.set_cur_pos(x + Window.x, y + Window.y)
+        win32gui.SendMessage(Window.id, button.down, button.btn, 0)
+        time.sleep(userset.SHORT_SLEEP)
+        Com.set_cur_pos(x2 + Window.x, y2 + Window.y)
+        win32gui.SendMessage(Window.id, wcon.WM_MOUSEMOVE, 0, 0)
+        win32gui.SendMessage(Window.id, button.up, button.btn, 0)
+        time.sleep(userset.SHORT_SLEEP)
+        Com.restore_cur()
+
+    @staticmethod
+    def special_click(x: int, y: int, button: str = "left", special: str = "leftShift"):
+        """Clicks at pixel x, y while simulating special button to be down."""
+        Inputs.special(special)
+        Inputs.click(x + Window.x, y + Window.y, button)
+        Inputs.restore_special()
+
+    @staticmethod
+    def ctrl_click(x: int, y: int, button: str = "left") -> None:
         """Clicks at pixel x, y while simulating the CTRL button to be down."""
-        x += Window.x
-        y += Window.y
-        lParam = win32api.MAKELONG(x, y)
-        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-               win32api.GetKeyState(wcon.VK_MENU) < 0):
-            time.sleep(0.005)
-
-        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, wcon.VK_CONTROL, 0)
-        win32gui.PostMessage(Window.id, wcon.WM_LBUTTONDOWN,
-                             wcon.MK_LBUTTON, lParam)
-        win32gui.PostMessage(Window.id, wcon.WM_LBUTTONUP,
-                             wcon.MK_LBUTTON, lParam)
-        win32gui.PostMessage(Window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
-        time.sleep(userset.MEDIUM_SLEEP)
+        Inputs.special_click(x + Window.x, y + Window.y, button, "leftControl")
 
     @staticmethod
-    def send_arrow_press(left :bool) -> None:
-        """Sends either a left or right arrow key press"""
-        if left: key = wcon.VK_LEFT
-        else   : key = wcon.VK_RIGHT
-        
-        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, key, 0)
-        time.sleep(0.05)
-        win32gui.PostMessage(Window.id, wcon.WM_KEYUP, key, 0)
-        time.sleep(0.05)
-    
-    @staticmethod
-    def send_string(string :str) -> None:
-        """Send one or multiple characters to the Window."""
-        # Ensure it's a string by converting it to a string
-        if isinstance(string, float):
-            string = int(string)
-        for c in str(string):
-            # Make sure no key modifier is pressed
-            while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-                   win32api.GetKeyState(wcon.VK_SHIFT)   < 0 or
-                   win32api.GetKeyState(wcon.VK_MENU)    < 0):
-                time.sleep(0.005)
-            
-            vkc = win32api.VkKeyScan(c)  # Get virtual key code for character c
-            # Only one keyup or keydown event needs to be sent
+    def send_string(s):
+        """Send string to game"""
+        for c in str(s):
+            # UnityEngine.UI.InputField
+            vkc = win32api.VkKeyScan(c)
             win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, vkc, 0)
-    
+
+            # UnityEngine.Input.GetKeyDownInt
+            # https://github.com/jamesjlinden/unity-decompiled/blob/master/UnityEngine/UnityEngine/KeyCode.cs
+            # Unity"s keycodes matches with ascii
+            Com.shortcut(ord(c))
+            time.sleep(userset.SHORT_SLEEP)
+
+    @staticmethod
+    def send_arrow_press(a: str = "left") -> None:
+        """Sends either a left, right, up or down arrow key press"""
+        key = Inputs.Arrow[a]
+        Com.shortcut(key)
+        time.sleep(userset.SHORT_SLEEP)
+
     @staticmethod
     def get_bitmap() -> image:
         """Get and return a bitmap of the Window."""

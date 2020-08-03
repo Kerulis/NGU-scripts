@@ -12,8 +12,9 @@ class Window:
     """This class contains game window coordinates."""
 
     id = 0
-    x = 0
-    y = 0
+    # difference between web and steam version
+    x = -5
+    y = 18
     dc = 0
 
     @deprecated(reason="Window() -Window instantiation- is deprecated, use Window.init() instead")
@@ -32,19 +33,14 @@ class Window:
             """Add window title and ID to array."""
             top_windows.append((hwnd, win32gui.GetWindowText(hwnd)))
 
-        if debug:
-            window_name = "debugg"
-        else:
-            window_name = "play ngu idle"
-
         top_windows = []
         windows = []
-        candidates = {}
         win32gui.EnumWindows(window_enumeration_handler, top_windows)
-        windows = [window[0] for window in top_windows if window_name in window[1].lower()]
-        for window in windows:
-            candidates[window] = Window.winRect(window)
-        return candidates
+        windows = [window[0] for window in top_windows if window[1] == 'NGU Idle']
+        if len(windows) == 0:
+            raise RuntimeError("Game window not found.")
+        Window.id = windows[0]
+
     @staticmethod
     def setPos(x :int, y :int) -> None:
         """Set top left coordinates."""

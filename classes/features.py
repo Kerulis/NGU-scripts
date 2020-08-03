@@ -39,7 +39,7 @@ class FightBoss:
         Navigation.menu("fight")
         if boss:
             for _ in range(boss):
-                Inputs.click(*coords.FIGHT, fast=True)
+                Inputs.click(*coords.FIGHT)
             time.sleep(userset.SHORT_SLEEP)
             try:
                 current_boss = int(FightBoss.get_current_boss())
@@ -49,7 +49,7 @@ class FightBoss:
             while current_boss < boss:
                 bossdiff = boss - current_boss
                 for _ in range(0, bossdiff):
-                    Inputs.click(*coords.FIGHT, fast=True)
+                    Inputs.click(*coords.FIGHT)
                 time.sleep(userset.SHORT_SLEEP)
                 try:
                     current_boss = int(FightBoss.get_current_boss())
@@ -165,7 +165,7 @@ class Adventure:
             Adventure.current_adventure_zone = zone
             Inputs.click(*coords.LEFT_ARROW, button="right")
             for _ in range(zone):
-                Inputs.click(*coords.RIGHT_ARROW, fast=True)
+                Inputs.click(*coords.RIGHT_ARROW)
             return
 
     @staticmethod
@@ -202,7 +202,7 @@ class Adventure:
         elif zone > 0 and zone != Adventure.current_adventure_zone:
             Inputs.click(*coords.LEFT_ARROW, button="right")
             for _ in range(zone):
-                Inputs.click(*coords.RIGHT_ARROW, fast=True)
+                Inputs.click(*coords.RIGHT_ARROW)
         Adventure.current_adventure_zone = zone
         Inputs.click(625, 500)  # click somewhere to move tooltip
         
@@ -212,7 +212,7 @@ class Adventure:
         end = time.time() + duration * 60
         while time.time() < end:
             if fast:
-                Inputs.click(*coords.ABILITY_REGULAR_ATTACK, fast=True)
+                Inputs.click(*coords.ABILITY_REGULAR_ATTACK)
                 continue
 
             Inputs.click(625, 500)  # click somewhere to move tooltip
@@ -277,7 +277,7 @@ class Adventure:
         
         while time.time() < end:
             if fast:
-                Inputs.click(*coords.ABILITY_REGULAR_ATTACK, fast=True)
+                Inputs.click(*coords.ABILITY_REGULAR_ATTACK)
                 continue
             if (Inputs.check_pixel_color(*coords.IS_ENEMY_ALIVE) and
                Inputs.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY)):
@@ -400,7 +400,7 @@ class Adventure:
             time.sleep(.5)
         
         for _ in range(const.TITAN_ZONE[target - 1]):
-            Inputs.click(*coords.RIGHT_ARROW, fast=True)
+            Inputs.click(*coords.RIGHT_ARROW)
         Adventure.current_adventure_zone = const.TITAN_ZONE[target - 1]
         time.sleep(userset.LONG_SLEEP)
         start = time.time()
