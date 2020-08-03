@@ -1,5 +1,5 @@
 # About this fork
-This fork adapts kujan's NGU-script to use [NGU-inputs](https://github.com/rigged-regie/NGU-inputs). This allows to use scripts on steam/kartrige while game window is out of focus. To make it work you need to have injector.exe and api.dll from [NGU-inputs](https://github.com/rigged-regie/NGU-inputs).
+This fork adapts kujan's NGU-script to use [NGU-inputs](https://github.com/rigged-regie/NGU-inputs). This allows to use scripts on steam/kartrige while game window is out of focus. To make it work you need to have injector.exe and api.dll from NGU-inputs. __Be sure to read 'disclaimer' and 'how to use' sections of__ [NGU-inputs](https://github.com/rigged-regie/NGU-inputs).
 
 # About
 This is a collection of functions I created for AHK and Python with the purpose of automating different aspects of the game [NGU-IDLE](https://www.kongregate.com/games/somethingggg/ngu-idle). This project first started because the built-in functions ControlClick/ControlSend in AHK did not work with the game, because of how Unity handles input. I first created replacements for these functions in AHK, but later moved over to Python because there was little reason to use AHK when the input was being sent directly via the Windows API.
