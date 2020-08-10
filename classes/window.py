@@ -13,7 +13,7 @@ class Window:
 
     id = 0
     # difference between web and steam version
-    x = -5
+    x = 0
     y = 18
     dc = 0
 
