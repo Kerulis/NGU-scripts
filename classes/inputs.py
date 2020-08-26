@@ -44,10 +44,20 @@ class Inputs:
 
     arrow = {
         "left": 276, # left arrow
-        "right": 265, # right arrow
+        "right": 275, # right arrow
         "up": 273, # up arrow
         "down": 274  # down arrow
     }
+
+    @staticmethod
+    def cursor_position(x: int, y: int) -> None:
+        """Set cursor position to (x, y)"""
+        Com.set_cur_pos(x + Window.cx, y + Window.cy)
+    
+    @staticmethod
+    def restore_cursor() -> None:
+        """Restore cursor position"""
+        Com.restore_cur()
 
     @staticmethod
     def special(special: str = "leftShift") -> None:
@@ -67,7 +77,7 @@ class Inputs:
         # No need for checking if special keys are pressed down.
         # When game is out of focus they are not sent :)
         button = Inputs.btns[button]
-        Com.set_cur_pos(x + Window.x, y + Window.y)
+        Com.set_cur_pos(x + Window.cx, y + Window.cy)
         win32gui.SendMessage(Window.id, button.down, button.btn, 0)
         win32gui.SendMessage(Window.id, button.up  , button.btn, 0)
         time.sleep(userset.SHORT_SLEEP)
@@ -77,10 +87,10 @@ class Inputs:
     def click_drag(x: int, y: int, x2: int, y2: int, button: str = "left") -> None:
         """Simulate drag event from x, y to x2, y2"""
         button = Inputs.btns[button]
-        Com.set_cur_pos(x + Window.x, y + Window.y)
+        Com.set_cur_pos(x + Window.cx, y + Window.cy)
         win32gui.SendMessage(Window.id, button.down, button.btn, 0)
         time.sleep(userset.SHORT_SLEEP)
-        Com.set_cur_pos(x2 + Window.x, y2 + Window.y)
+        Com.set_cur_pos(x2 + Window.cx, y2 + Window.cy)
         win32gui.SendMessage(Window.id, wcon.WM_MOUSEMOVE, 0, 0)
         win32gui.SendMessage(Window.id, button.up, button.btn, 0)
         time.sleep(userset.SHORT_SLEEP)
@@ -90,13 +100,13 @@ class Inputs:
     def special_click(x: int, y: int, button: str = "left", special: str = "leftShift"):
         """Clicks at pixel x, y while simulating special button to be down."""
         Inputs.special(special)
-        Inputs.click(x + Window.x, y + Window.y, button)
+        Inputs.click(x + Window.cx, y + Window.cy, button)
         Inputs.restore_special()
 
     @staticmethod
     def ctrl_click(x: int, y: int, button: str = "left") -> None:
         """Clicks at pixel x, y while simulating the CTRL button to be down."""
-        Inputs.special_click(x + Window.x, y + Window.y, button, "leftControl")
+        Inputs.special_click(x + Window.cx, y + Window.cy, button, "leftControl")
 
     @staticmethod
     def send_string(s):
@@ -111,11 +121,12 @@ class Inputs:
             # Unity"s keycodes matches with ascii
             Com.shortcut(ord(c))
             time.sleep(userset.SHORT_SLEEP)
+            Com.restore_shortcut()
 
     @staticmethod
     def send_arrow_press(a: str = "left") -> None:
         """Sends either a left, right, up or down arrow key press"""
-        key = Inputs.Arrow[a]
+        key = Inputs.arrow[a]
         Com.shortcut(key)
         time.sleep(userset.SHORT_SLEEP)
 

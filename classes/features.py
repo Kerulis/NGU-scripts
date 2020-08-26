@@ -569,8 +569,9 @@ class Inventory:
         for slot in coords.EQUIPMENT_SLOTS:
             if slot == "cube":
                 return
-            Inputs.click(*coords.EQUIPMENT_SLOTS[slot])
+            Inputs.cursor_position(*coords.EQUIPMENT_SLOTS[slot])
             Inputs.send_string("d")
+            Inputs.restore_cursor()
     
     @staticmethod
     def boost_equipment(boost_cube :bool =True) -> None:
@@ -586,8 +587,9 @@ class Inventory:
                 if boost_cube:
                     Inventory.boost_cube()
                 return
-            Inputs.click(*coords.EQUIPMENT_SLOTS[slot])
+            Inputs.cursor_position(*coords.EQUIPMENT_SLOTS[slot])
             Inputs.send_string("a")
+            Inputs.restore_cursor()
     
     @staticmethod
     def boost_cube() -> None:
@@ -633,8 +635,9 @@ class Inventory:
         Navigation.menu("inventory")
         coord = Inventory.get_inventory_slots(slots)
         for slot in coord:
-            Inputs.click(*slot)
+            Inputs.cursor_position(*slot)
             Inputs.send_string("d")
+            Inputs.restore_cursor()
     
     @staticmethod
     def boost_inventory(slots :int) -> None:
@@ -646,8 +649,9 @@ class Inventory:
         Navigation.menu("inventory")
         coord = Inventory.get_inventory_slots(slots)
         for slot in coord:
-            Inputs.click(*slot)
+            Inputs.cursor_position(*slot)
             Inputs.send_string("a")
+            Inputs.restore_cursor()
     
     @staticmethod
     def transform_slot(slot :int, threshold :float =0.8, consume :bool =False) -> None:

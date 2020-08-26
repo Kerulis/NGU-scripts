@@ -13,8 +13,13 @@ class Window:
 
     id = 0
     # difference between web and steam version
-    x = 0
+    x = -5
     y = 18
+
+    # mouse offsets
+    cx = x + 8
+    cy = y
+    
     dc = 0
 
     @deprecated(reason="Window() -Window instantiation- is deprecated, use Window.init() instead")
