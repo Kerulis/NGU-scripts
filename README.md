@@ -17,7 +17,6 @@ The AHK script is unsupported and deleted. They will work well in any Unity base
 * Windows 7 or later (NT >=6.1)
 * Python 3.7
 * Tesseract OCR
-* Firefox Browser with hardware acceleration turned OFF (you have to restart the browser for it to take effect). If you wish to script on steam/kartridge check out  [jasperfirecai2's fork](https://github.com/jasperfirecai2/NGU-scripts) or the kartridge branch on this repo (out of date). These alternatives DO NOT work in the background, they will use your mouse and keyboard.
 * Use scientific notation in game
 * The "simple inventory shortcuts" setting must be enabled
 * The normal theme must be enabled and resolution set to 960x600
@@ -42,17 +41,6 @@ Change the settings in ``usersettings_example.py`` and rename it to ``usersettin
 If you are using a big monitor (4K, 8K) or by some reason your Windows scaling is set to something other than 100%, the scripts won't work.
 To solve this, on Firefox go to ```about:config``` and set ```layout.css.devPixelsPerPx``` to ```1.0```.
 
-### Optional
-If you're using Firefox as your main browser, you will notice that the script will steal focus each time it performs an action. To solve this you can create a specific profile that only runs the game. 
-
-1. In firefox enter ``about:profiles`` in the address field.
-2. Create a new profile and name it (NGU, for example)
-3. Go to your firefox installation folder, right click the ``firefox.exe`` file
-   and select create shortcut.
-4. Right click the shortcut and select properties.
-5. In the target field, enter ``-P YOURPROFILENAME -no-remote`` after the quotation mark. It should look like this: ``"C:\Program Files\Mozilla Firefox\firefox.exe" -P NGU -no-remote``
-6. Start firefox via the shortcut and load your NGU save.
-
 ## FAQ
 * Q: I get a ``ValueError``.
 
@@ -64,7 +52,7 @@ You're either sending invalid coordinates to the function, or the ``Window`` cla
 
 * Q: I get a ``TypeError: cannot unpack non-iterable NoneType object`` error from ``pixel_search()``.
 
-Make sure you have the game running in Firefox, and that the window is NOT minimized, you cannot minimize the window while running, but you can have other windows on top of the game window just fine. This error will also occur if you lock the computer screen, or if Windows put your monitors to sleep due to power settings. See answer above if you're using DisplayPort.
+This error will also occur if you lock the computer screen, or if Windows put your monitors to sleep due to power settings. See answer above if you're using DisplayPort.
 This can also happen on big monitors, as the search area might be too little. Try changing the script to ```pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 2000, 1000)``` instead. Note that reducing Firefox windows size can make this search area be out of bounds and throw an error.
 
 * Q: I get a ``pywintypes.error: (0, 'GetPixel', 'No error message is available')`` error.

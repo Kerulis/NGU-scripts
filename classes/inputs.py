@@ -12,7 +12,7 @@ import time
 
 from typing import Iterable, Optional, Tuple
 
-from PIL import Image as image
+from PIL import Image
 from PIL import ImageFilter
 import cv2
 import numpy
@@ -20,9 +20,10 @@ import numpy
 import pytesseract
 
 import usersettings as userset
-from classes.com    import Com
+from classes.com import Com
 from classes.window import Window
-from collections    import namedtuple
+from collections import namedtuple
+
 
 class Inputs:
     """This class handles inputs."""
@@ -30,22 +31,22 @@ class Inputs:
     Btn = namedtuple("Btn", ["btn", "down", "up"])
 
     btns = {
-        "left": Btn(wcon.MK_LBUTTON, wcon.WM_LBUTTONDOWN, wcon.WM_LBUTTONUP), # left mouse button
-        "right": Btn(wcon.MK_RBUTTON, wcon.WM_RBUTTONDOWN, wcon.WM_RBUTTONUP), # right mouse button
+        "left": Btn(wcon.MK_LBUTTON, wcon.WM_LBUTTONDOWN, wcon.WM_LBUTTONUP),  # left mouse button
+        "right": Btn(wcon.MK_RBUTTON, wcon.WM_RBUTTONDOWN, wcon.WM_RBUTTONUP),  # right mouse button
         "middle": Btn(wcon.MK_MBUTTON, wcon.WM_MBUTTONDOWN, wcon.WM_MBUTTONUP)  # middle mouse button
     }
 
     specialKeys = {
-        "leftShift": 0, # left shift
-        "rightShift": 1, # right shift
-        "leftControl": 2, # left control
+        "leftShift": 0,  # left shift
+        "rightShift": 1,  # right shift
+        "leftControl": 2,  # left control
         "rightControl": 3  # right control
     }
 
     arrow = {
-        "left": 276, # left arrow
-        "right": 275, # right arrow
-        "up": 273, # up arrow
+        "left": 276,  # left arrow
+        "right": 275,  # right arrow
+        "up": 273,  # up arrow
         "down": 274  # down arrow
     }
 
@@ -53,7 +54,7 @@ class Inputs:
     def cursor_position(x: int, y: int) -> None:
         """Set cursor position to (x, y)"""
         Com.set_cur_pos(x + Window.cx, y + Window.cy)
-    
+
     @staticmethod
     def restore_cursor() -> None:
         """Restore cursor position"""
@@ -79,7 +80,7 @@ class Inputs:
         button = Inputs.btns[button]
         Com.set_cur_pos(x + Window.cx, y + Window.cy)
         win32gui.SendMessage(Window.id, button.down, button.btn, 0)
-        win32gui.SendMessage(Window.id, button.up  , button.btn, 0)
+        win32gui.SendMessage(Window.id, button.up, button.btn, 0)
         time.sleep(userset.SHORT_SLEEP)
         Com.restore_cur()
 
@@ -100,13 +101,13 @@ class Inputs:
     def special_click(x: int, y: int, button: str = "left", special: str = "leftShift"):
         """Clicks at pixel x, y while simulating special button to be down."""
         Inputs.special(special)
-        Inputs.click(x + Window.cx, y + Window.cy, button)
+        Inputs.click(x, y, button)
         Inputs.restore_special()
 
     @staticmethod
     def ctrl_click(x: int, y: int, button: str = "left") -> None:
         """Clicks at pixel x, y while simulating the CTRL button to be down."""
-        Inputs.special_click(x + Window.cx, y + Window.cy, button, "leftControl")
+        Inputs.special_click(x, y, button, "leftControl")
 
     @staticmethod
     def send_string(s):
@@ -131,7 +132,7 @@ class Inputs:
         time.sleep(userset.SHORT_SLEEP)
 
     @staticmethod
-    def get_bitmap() -> image:
+    def get_bitmap() -> Image:
         """Get and return a bitmap of the Window."""
         left, top, right, bot = win32gui.GetWindowRect(Window.id)
         w = right - left
@@ -147,7 +148,7 @@ class Inputs:
         bmpstr = save_bitmap.GetBitmapBits(True)
 
         # This creates an Image object from Pillow
-        bmp = image.frombuffer('RGB',
+        bmp = Image.frombuffer('RGB',
                                (bmpinfo['bmWidth'],
                                 bmpinfo['bmHeight']),
                                bmpstr, 'raw', 'BGRX', 0, 1)
@@ -160,12 +161,12 @@ class Inputs:
         return bmp
 
     @staticmethod
-    def get_cropped_bitmap(x_start :int =0, y_start :int =0, x_end :int =960, y_end :int =600) -> image:
+    def get_cropped_bitmap(x_start: int = 0, y_start: int = 0, x_end: int = 960, y_end: int = 600) -> Image:
         return Inputs.get_bitmap().crop(
             (x_start + 8, y_start + 8, x_end + 8, y_end + 8))
-    
+
     @staticmethod
-    def pixel_search(color :str, x_start :int, y_start :int, x_end :int, y_end :int) -> Optional[Tuple[int, int]]:
+    def pixel_search(color: str, x_start: int, y_start: int, x_end: int, y_end: int) -> Optional[Tuple[int, int]]:
         """Find the first pixel with the supplied color within area.
         
         Function searches per row, left to right. Returns the coordinates of
@@ -182,12 +183,12 @@ class Inputs:
                 t = bmp.getpixel((x, y))
                 if Inputs.rgb_to_hex(t) == color:
                     return x - 8, y - 8
-        
+
         return None
 
     @staticmethod
-    def image_search(x_start :int, y_start :int, x_end :int, y_end :int,
-                     img :str, threshold :int, bmp :image =None) -> Optional[Tuple[int, int]]:
+    def image_search(x_start: int, y_start: int, x_end: int, y_end: int,
+                     img: str, threshold: int, bmp: Image = None) -> Optional[Tuple[int, int]]:
         """Search the screen for the supplied picture.
         
         Returns a tuple with x,y-coordinates, or None if result is below
@@ -216,18 +217,18 @@ class Inputs:
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val < threshold:
             return None
-        
+
         return max_loc
 
     @staticmethod
     def find_all(
-        x_start :int,
-        y_start :int,
-        x_end :int,
-        y_end :int,
-        img :str,
-        threshold: float,
-        bmp :image=None) -> tuple:
+            x_start: int,
+            y_start: int,
+            x_end: int,
+            y_end: int,
+            img: str,
+            threshold: float,
+            bmp: Image = None) -> tuple:
         """Search the screen for the supplied picture.
         
         Returns a list with x, y-coordinates with all matches, or None if result is below
@@ -261,25 +262,25 @@ class Inputs:
         return lst
 
     @staticmethod
-    def rgb_equal(a :Tuple[int, int, int], b :Tuple[int, int, int]) -> bool:
+    def rgb_equal(a: Tuple[int, int, int], b: Tuple[int, int, int]) -> bool:
         if a[0] != b[0]: return False
         if a[1] != b[1]: return False
         if a[2] != b[2]: return False
         return True
-    
+
     @staticmethod
     def ocr(
-         x_start :int,
-         y_start :int,
-         x_end :int,
-         y_end :int,
-         debug :bool =False,
-         bmp :image =None,
-         cropb :bool =False,
-         filter :bool =True,
-         binf :int =0,
-         sliced :bool =False
-     ) -> str:
+            x_start: int,
+            y_start: int,
+            x_end: int,
+            y_end: int,
+            debug: bool = False,
+            bmp: Image = None,
+            cropb: bool = False,
+            ocr_filter: bool = True,
+            binf: int = 0,
+            sliced: bool = False
+    ) -> str:
         """Perform an OCR of the supplied area, returns a string of the result.
         
         Keyword arguments
@@ -296,36 +297,38 @@ class Inputs:
                   space. Gets better readings from small values for some reason.
         """
         x_start += Window.x
-        x_end   += Window.x
+        x_end += Window.x
         y_start += Window.y
-        y_end   += Window.y
+        y_end += Window.y
 
         if bmp is None:
             bmp = Inputs.get_cropped_bitmap(x_start, y_start, x_end, y_end)
-        
+
         elif cropb:
             # Bitmaps are created with a 8px border
             bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
-        
-        if binf > 0: # Binarizing Filter
-            fn = lambda x : 255 if x > binf else 0
-            bmp = bmp.convert('L') # To Monochrome
+
+        if binf > 0:  # Binarizing Filter
+            fn = lambda x: 255 if x > binf else 0
+            bmp = bmp.convert('L')  # To Monochrome
             bmp = bmp.point(fn, mode='1')
             if debug: bmp.save("debug_ocr_whiten.png")
-        
-        if filter: # Resizing and sharpening
+
+        if ocr_filter:  # Resizing and sharpening
             *_, right, lower = bmp.getbbox()
-            bmp = bmp.resize((right * 4, lower * 4), image.BICUBIC)  # Resize image
+            bmp = bmp.resize((right * 4, lower * 4), Image.BICUBIC)  # Resize image
             bmp = bmp.filter(ImageFilter.SHARPEN)
             if debug: bmp.save("debug_ocr_filter.png")
-            
-        if sliced: s = pytesseract.image_to_string(bmp, config='--psm 6')
-        else:      s = pytesseract.image_to_string(bmp, config='--psm 4')
-        
+
+        if sliced:
+            s = pytesseract.image_to_string(bmp, config='--psm 6')
+        else:
+            s = pytesseract.image_to_string(bmp, config='--psm 4')
+
         return s
 
     @staticmethod
-    def get_pixel_color(x :int, y :int, debug :bool =False) -> str:
+    def get_pixel_color(x: int, y: int, debug: bool = False) -> str:
         """Get the color of selected pixel in HEX."""
         dc = win32gui.GetWindowDC(Window.id)
         rgba = win32gui.GetPixel(dc, x + 8 + Window.x, y + 8 + Window.y)
@@ -333,13 +336,13 @@ class Inputs:
         r = rgba & 0xff
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff
-        
+
         if debug: print(Inputs.rgb_to_hex((r, g, b)))
-        
+
         return Inputs.rgb_to_hex((r, g, b))
 
     @staticmethod
-    def check_pixel_color(x :int, y :int, checks :Iterable[str], debug :bool =False) -> bool:
+    def check_pixel_color(x: int, y: int, checks: Iterable[str], debug: bool = False) -> bool:
         """Check if coordinate matches with one or more colors."""
         color = Inputs.get_pixel_color(x, y, debug=debug)
         if isinstance(checks, list):
@@ -350,53 +353,53 @@ class Inputs:
         return color == checks
 
     @staticmethod
-    def remove_spaces(s :str) -> str:
+    def remove_spaces(s: str) -> str:
         """Remove all spaces from string."""
         return "".join(s.split(" "))
 
     @staticmethod
-    def remove_number_separators(s :str) -> str:
+    def remove_number_separators(s: str) -> str:
         """Remove all separators from number."""
         return "".join(s.split(","))
-    
+
     @staticmethod
-    def remove_letters(s :str) -> str:
+    def remove_letters(s: str) -> str:
         """Remove all non digit characters from string."""
         return re.sub('[^0-9]', '', s)
 
     @staticmethod
-    def get_numbers(s :str) -> Iterable[int]:
+    def get_numbers(s: str) -> Iterable[int]:
         """Finds all numbers in a string"""
         s = Inputs.remove_spaces(s)
         s = Inputs.remove_number_separators(s)
         match = re.findall(r"(\d+(\.\d+E\+\d+)?)", s)
         nums = [int(float(x[0])) for x in match]
         return nums
-    
+
     @staticmethod
-    def rgb_to_hex(tup :Tuple[int, int, int]) -> str:
+    def rgb_to_hex(tup: Tuple[int, int, int]) -> str:
         """Convert RGB value to hex."""
         return '%02x%02x%02x'.upper() % (tup[0], tup[1], tup[2])
 
     @staticmethod
-    def hex_to_rgb(str :str) -> Tuple[int, int, int]:
+    def hex_to_rgb(string: str) -> Tuple[int, int, int]:
         """Convert hex value to RGB."""
-        return tuple(int(str[i:i + 2], 16) for i in (0, 2, 4))
+        return tuple(int(string[i:i + 2], 16) for i in (0, 2, 4))
 
     @staticmethod
-    def get_file_path(directory :str, file :str) -> str:
+    def get_file_path(directory: str, file: str) -> str:
         """Get the absolute path for a file."""
         working = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         path = os.path.join(working, directory, file)
         return path
 
     @staticmethod
-    def ocr_number(x_1 :int, y_1 :int, x_2 :int, y_2 :int) -> int:
+    def ocr_number(x_1: int, y_1: int, x_2: int, y_2: int) -> int:
         """Remove all non-digits."""
         return int(Inputs.remove_letters(Inputs.ocr(x_1, y_1, x_2, y_2)))
 
     @staticmethod
-    def ocr_notation(x_1 :int, y_1 :int, x_2 :int, y_2 :int) -> int:
+    def ocr_notation(x_1: int, y_1: int, x_2: int, y_2: int) -> int:
         """Convert scientific notation from string to int."""
         return int(float(Inputs.ocr(x_1, y_1, x_2, y_2)))
 

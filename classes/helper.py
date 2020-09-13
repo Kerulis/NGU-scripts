@@ -1,18 +1,20 @@
 """Helper functions."""
-from classes.window     import Window
-from classes.inputs     import Inputs
-from classes.features   import Inventory, MoneyPit, Adventure, Yggdrasil, GoldDiggers, Questing
-from classes.com        import Com
+from classes.window import Window
+from classes.inputs import Inputs
+from classes.features import Inventory, MoneyPit, Adventure, Yggdrasil, GoldDiggers, Questing
+from classes.com import Com
 
 import coordinates as coords
 
 
 class Helper:
-    def init(printCoords :bool =False) -> None:
+    @staticmethod
+    def init() -> None:
         Window.init()
         Com.init()
         Com.hook()
 
+    @staticmethod
     def requirements() -> None:
         """Set everything to the proper requirements to run the script.
         It's strongly recommended to run this straight after init()."""
@@ -24,7 +26,8 @@ class Helper:
         Inputs.click(*coords.SETTINGS_PAGE_2)
         Inputs.click(*coords.SIMPLE_INVENTORY_SHORTCUT_ON)
 
-    def loop(idle_majors :bool =False) -> None:
+    @staticmethod
+    def loop(idle_majors: bool = False) -> None:
         """Run infinite loop to prevent idling after task is complete.
         
         Keyword arguments
@@ -43,7 +46,8 @@ class Helper:
             Yggdrasil.ygg()
             Adventure.itopod_snipe(300)
 
-    def human_format(num :float) -> str:
+    @staticmethod
+    def human_format(num: float) -> str:
         """Convert large numbers into something readable."""
         suffixes = ['', 'K', 'M', 'B', 'T', 'Q', 'Qi', 'Sx', 'Sp']
         num = float('{:.3g}'.format(num))
