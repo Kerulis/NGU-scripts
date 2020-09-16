@@ -1,10 +1,10 @@
 """Helper functions."""
-from classes.window import Window
-from classes.inputs import Inputs
-from classes.features import Inventory, MoneyPit, Adventure, Yggdrasil, GoldDiggers, Questing
-from classes.com import Com
 
 import coordinates as coords
+from classes.com import Com
+from classes.features import Inventory, MoneyPit, Adventure, Yggdrasil, GoldDiggers, Questing
+from classes.inputs import Inputs
+from classes.window import Window
 
 
 class Helper:

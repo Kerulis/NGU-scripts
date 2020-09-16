@@ -4,17 +4,15 @@ import datetime
 import math
 import re
 import time
-
 from collections import deque, namedtuple
 from typing import Dict, List, Tuple
-from PIL.Image import Image as PILImage
 
+from PIL.Image import Image as PILImage
 from deprecated import deprecated
 
 import constants    as const
 import coordinates  as coords
 import usersettings as userset
-
 from classes.inputs import Inputs
 from classes.navigation import Navigation
 from classes.window import Window
@@ -1647,7 +1645,7 @@ class Misc:
             raise RuntimeError("Invalid resource")
 
         if bmp is None:
-            bmp = Inputs.get_cropped_bitmap(*Window.gameCoords(*coords.OCR_BREAKDOWN_COLONS))
+            bmp = Inputs.get_cropped_bitmap(*Window.coord_manager_area(*coords.OCR_BREAKDOWN_COLONS))
         if debug: bmp.show()
 
         imgs = Misc.__split_breakdown(bmp)
