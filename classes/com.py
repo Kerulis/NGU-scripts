@@ -1,5 +1,8 @@
 import struct
 
+from classes.window import Window
+
+
 class Com:
     """Com communicates with pipe server"""
     """eg. dll injected into the game process"""
@@ -13,7 +16,7 @@ class Com:
 
     @staticmethod
     def reconnect() -> None:
-        """Recoonects with the communication pipe"""
+        """Reconnects with the communication pipe"""
         if Com.pipe is not None:
             Com.pipe.close()
             Com.pipe = None
@@ -28,27 +31,28 @@ class Com:
     def sync() -> None:
         """Wait for pipe server to complete last command"""
         Com.pipe.write(struct.pack('<b', 0xc))
-    
+
     @staticmethod
     def set_cur_pos(x: int, y: int) -> None:
         """Fake position returned by user32.GetCursorPos"""
         """hook_get_cur_pos needed"""
+        x, y = Window.coord_manager(x, y)
         Com.pipe.write(struct.pack('<bhh', 0x0, x, y))
         Com.sync()
-    
+
     @staticmethod
     def restore_cur() -> None:
         """Restore user32.GetCursorPos to its original state"""
         Com.pipe.write(struct.pack('<b', 0x1))
         Com.sync()
-    
+
     @staticmethod
     def shortcut(keycode: int) -> None:
         """Fake keycode returned by Unity.GetKeyDownInt"""
         """hook_get_key_down needed"""
         Com.pipe.write(struct.pack('<bi', 0x2, keycode))
         Com.sync()
-    
+
     @staticmethod
     def restore_shortcut() -> None:
         """Restore Unity.GetKeyDownInt to its original state"""
@@ -61,7 +65,7 @@ class Com:
         """hook_get_key needed"""
         Com.pipe.write(struct.pack('<bb', 0x4, keycode))
         Com.sync()
-    
+
     @staticmethod
     def restore_special() -> None:
         """Restore Unity.GetKeyString to its original state"""
@@ -79,7 +83,7 @@ class Com:
         """Close pipe server"""
         """Make sure that each hook is disabled"""
         Com.pipe.write(struct.pack('<b', 0x7))
-        
+
     @staticmethod
     def hook_focus() -> None:
         """Hooks Unity.EventSystems.EventSystem.OnApplicationFocus."""

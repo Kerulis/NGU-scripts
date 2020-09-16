@@ -1,28 +1,25 @@
 """Input class contains functions for mouse and keyboard input."""
-from ctypes import windll
-import win32api
-import win32con as wcon
-import win32gui
-import win32ui
-
 import datetime
 import os
 import re
 import time
-
+from collections import namedtuple
+from ctypes import windll
 from typing import Iterable, Optional, Tuple
 
-from PIL import Image
-from PIL import ImageFilter
 import cv2
 import numpy
-
 import pytesseract
+import win32api
+import win32con as wcon
+import win32gui
+import win32ui
+from PIL import Image
+from PIL import ImageFilter
 
 import usersettings as userset
 from classes.com import Com
 from classes.window import Window
-from collections import namedtuple
 
 
 class Inputs:
@@ -331,26 +328,30 @@ class Inputs:
     def get_pixel_color(x: int, y: int, debug: bool = False) -> str:
         """Get the color of selected pixel in HEX."""
         dc = win32gui.GetWindowDC(Window.id)
-        rgba = win32gui.GetPixel(dc, x + 8 + Window.x, y + 8 + Window.y)
+        x, y = Window.coord_manager(x, y)
+        rgba = win32gui.GetPixel(dc, x, y)
         win32gui.ReleaseDC(Window.id, dc)
         r = rgba & 0xff
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff
 
-        if debug: print(Inputs.rgb_to_hex((r, g, b)))
+        if debug:
+            print(Inputs.rgb_to_hex((r, g, b)))
 
         return Inputs.rgb_to_hex((r, g, b))
 
     @staticmethod
     def check_pixel_color(x: int, y: int, checks: Iterable[str], debug: bool = False) -> bool:
         """Check if coordinate matches with one or more colors."""
-        color = Inputs.get_pixel_color(x, y, debug=debug)
+        color = [Inputs.get_pixel_color(x, y, debug=debug), Inputs.get_pixel_color(x - 1, y - 1),
+                 Inputs.get_pixel_color(x + 1, y + 1)]
+
         if isinstance(checks, list):
             for check in checks:
-                if check == color:
+                if check in color:
                     return True
 
-        return color == checks
+        return checks in color
 
     @staticmethod
     def remove_spaces(s: str) -> str:
