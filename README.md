@@ -1,19 +1,24 @@
-# About this fork
-This fork adapts kujan's NGU-script to use [NGU-inputs](https://github.com/rigged-regie/NGU-inputs). This allows to use scripts on steam/kartrige while game window is out of focus. To make it work you need to have injector.exe and api.dll from NGU-inputs. __Be sure to read 'disclaimer' and 'how to use' sections of__ [NGU-inputs](https://github.com/rigged-regie/NGU-inputs).
+# NGU-Scripts
 
-# About
-This is a collection of functions I created for AHK and Python with the purpose of automating different aspects of the game [NGU-IDLE](https://www.kongregate.com/games/somethingggg/ngu-idle). This project first started because the built-in functions ControlClick/ControlSend in AHK did not work with the game, because of how Unity handles input. I first created replacements for these functions in AHK, but later moved over to Python because there was little reason to use AHK when the input was being sent directly via the Windows API.
+NGU-Scripts is a collection of common functions to script many tasks in the game NGU. This includes itopod, sniping zones, questing, guff runs, and glop farming with a whole bunch of other miscellaneous functions.
+
+## About This Fork
+
+This fork adapts kujan's NGU-script to use [NGU-inputs](https://github.com/rigged-regie/NGU-inputs). This allows to use scripts on steam/kartrige while game window is out of focus. To make it work you need to have injector.exe and api.dll from NGU-inputs. __Be sure to read 'disclaimer' and 'how to use' sections of__ [NGU-inputs](https://github.com/rigged-regie/NGU-inputs).
 
 ### Features
 These functions will send input to the game without using your keyboard or mouse, and they don't require the window to be active. The supplied functions found in the `classes` directory can help you create your own scripts to run. You can also see my implementations in the top-level `.py` files (except `constants.py` and `coordinates.py`) for inspiration of what you can do. WARNING: These scripts are subject to frequent change.
 Check the blame as well for even further inspiration!
 
-### Disclaimer
-If you're automating the game using these or any other scripts, please consider disabling the high score submissions in the game settings.
+## _Disclaimer_
+_If you're automating the game using these or any other scripts, please consider disabling the high score submissions in the game settings._
 
-The AHK script is unsupported and deleted. They will work well in any Unity based browser game, where AHK's builtins fall short. If you want them, check the AHK branch https://github.com/kujan/NGU-scripts/tree/AHK.
+## Installation
 
-## Requirements
+To use this fork with the injector you first need to download `api.dll` and `injector.exe` from [NGU-Inputs](https://github.com/rigged-regie/NGU-inputs) from the releases section. `api.dll` and `injector.exe` need to be in the same folder and you need to run `injector.exe` after you run NGU. 
+Check the readme there for more information.
+
+### Requirements
 * Windows 7 or later (NT >=6.1)
 * Python 3.7
 * Tesseract OCR
@@ -23,7 +28,7 @@ The AHK script is unsupported and deleted. They will work well in any Unity base
 * Fancy titan HP bars must be disabled if using the ``kill_titan()`` method
 * If you plan on using wishes/R3 I strongly recommend you to name your R3 to 'R' and use the green background, otherwise you will get spotty results from Tesseract. It's also strongly recommended to have 50 speed in all 3 resources.
 
-## Installation
+### Python
 There's an installation video [here](https://streamable.com/qbql0).
 It's significantly outdated but it can be useful to check.
 
@@ -37,11 +42,13 @@ Remember to restart your command prompt/IDE after changing your environment vari
 
 Change the settings in ``usersettings_example.py`` and rename it to ``usersettings.py``
 
-### Big Monitors
-If you are using a big monitor (4K, 8K) or by some reason your Windows scaling is set to something other than 100%, the scripts won't work.
-To solve this, on Firefox go to ```about:config``` and set ```layout.css.devPixelsPerPx``` to ```1.0```.
+## Other information
 
-## FAQ
+### FAQ
+* Q: The script misses clicks and menus.
+
+This script recently got support for display scaling and multiple resolutions. The most common coordinates in [coordinates.py](coordinates.py) were updated but updating them all is a lot of tedious work that help would be appreciated with. The cords can be found in a sheet pinned in the Discord's scripting channel.
+
 * Q: I get a ``ValueError``.
 
 You're probably trying to cast a result from `ocr()`, that returns a string which might be empty or contain non-numeric characters. Use [try/except](https://docs.python.org/3/tutorial/errors.html#handling-exceptions) to handle this appropriately.
@@ -52,7 +59,7 @@ You're either sending invalid coordinates to the function, or the ``Window`` cla
 
 * Q: I get a ``TypeError: cannot unpack non-iterable NoneType object`` error from ``pixel_search()``.
 
-This error will also occur if you lock the computer screen, or if Windows put your monitors to sleep due to power settings. See answer above if you're using DisplayPort.
+This error will occur if you lock the computer screen, or if Windows put your monitors to sleep due to power settings. See answer above if you're using DisplayPort.
 This can also happen on big monitors, as the search area might be too little. Try changing the script to ```pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 2000, 1000)``` instead. Note that reducing Firefox windows size can make this search area be out of bounds and throw an error.
 
 * Q: I get a ``pywintypes.error: (0, 'GetPixel', 'No error message is available')`` error.
